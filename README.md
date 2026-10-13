@@ -1,189 +1,316 @@
-# TapLend India - Data Science Assessment: Credit Risk Analysis
+# TapLend India --- Credit Risk Analysis
 
-## Project Objective
-This project analyzes historical consumer loan applications and subsequent loan performance records from TapLend. The primary analytical objective is to investigate whether applicant characteristics and credit bureau scores captured at application time can reliably predict loan repayment outcomes (`Good` vs. `Bad`), evaluate data quality and cohort matching anomalies, establish a leak-free machine learning workflow with fair-lending hygiene, and provide actionable, evidence-based underwriting recommendations.
+A data science assessment project exploring historical consumer-loan
+performance, investigating application-to-loan matching quality, and
+evaluating machine-learning models for distinguishing **Good** and
+**Bad** repayment outcomes.
 
----
+> **Important:** This is an educational analysis, not a production
+> lending or automated underwriting system. The dataset is historical,
+> the matched sample is small, and the results require further
+> validation before any business use.
 
-## Dataset Description
-The analysis is based on the workbook `data/AssessmentDataScientist.xlsx`, which contains three sheets:
+## Project objectives
 
-1. **`Assignment`**:
-   The primary task brief specifying an analysis of historical applications and loan outcomes over a 6-month period to guide future credit decisions.
-2. **`Application Data` (647 rows × 31 columns)**:
-   Covers applicants approved between October 16, 2010 and April 17, 2011. Includes applicant demographics, self-reported monthly income and housing expenses, requested financing terms, five specialized credit bureau scores (`raw_l2c_score`, `raw_FICO_telecom`, `raw_FICO_retail`, `raw_FICO_bank_card`, `raw_FICO_money`), and post-decision underwriter counter-offers (`amount_approved`, `duration_approved`, `payment_amount_approved`). Every applicant in this dataset has status `Approved`.
-3. **`Loan Performance` (1,285 rows × 2 columns)**:
-   Captures all loans issued during the observation window with their binary repayment performance (`flgGood`: `Good` vs. `Bad`). Across the entire table, there are 769 Good loans (59.84%) and 516 Bad loans (40.16%).
+-   Audit the source workbook and assess data quality.
+-   Investigate the relationship between application records and
+    loan-performance records without inventing missing join keys.
+-   Explore applicant, loan-term, and credit-bureau characteristics in
+    relation to repayment outcomes.
+-   Engineer features available at application time and exclude
+    post-decision fields to reduce target leakage.
+-   Compare Logistic Regression and Random Forest classifiers on a
+    held-out test set.
+-   Discuss decision-threshold trade-offs, selection bias, missing
+    records, and fair-lending limitations.
+-   Provide a saved model, a command-line prediction example,
+    reproducible tests, a report, and a presentation.
 
----
+## Repository structure
 
-## Project Structure
-```
+``` text
 TapLend_Data_Science_Assignment/
-├── .venv/                              # Python 3.13 virtual environment
 ├── data/
-│   └── AssessmentDataScientist.xlsx    # Original Excel workbook (preserved & unmodified)
+│   └── AssessmentDataScientist.xlsx       # Source workbook; do not publish if it contains sensitive data
 ├── notebooks/
-│   └── taplend_analysis.ipynb          # Updated master Jupyter notebook (executed top-to-bottom)
+│   └── taplend_analysis.ipynb             # Main exploratory analysis and modelling notebook
 ├── outputs/
-│   ├── confusion_matrices.png          # Holdout test set confusion heatmaps
-│   ├── data_quality_summary.csv        # Hygiene, leakage, and cardinality audit
-│   ├── feature_importance_comparison.png # Top features across RF and Logistic Regression
-│   ├── feature_importance_summary.csv  # Gini importance scores from Random Forest
-│   ├── fico_scores_by_outcome.png      # Bureau FICO distributions across Good vs. Bad loans
-│   ├── financial_tradeoff_curve.png    # Training CV threshold selection and test loss curve
-│   ├── findings_report.md              # Concise executive summary report
-│   ├── income_by_outcome.png           # Monthly income distribution across loan outcomes
-│   ├── loan_outcome_distribution.png   # Good vs. Bad loan outcome counts and percentages
-│   ├── logistic_regression_coefficients.csv # Log-odds and odds-ratio coefficients
-│   ├── matched_analysis_data.csv       # Verified matched analysis dataset (N = 657)
-│   ├── matched_vs_unmatched_comparison.png # Outcome comparison between matched & unmatched cohorts
-│   ├── matching_investigation_summary.csv # Quantitative matching investigation audit
-│   ├── missing_values_report.csv       # Field-by-field missing value frequency and percentages
-│   ├── model_comparison_table.csv      # Out-of-sample metrics (Accuracy, ROC-AUC, Precision, Recall, F1)
-│   ├── monthly_income_distribution.png # Overall applicant monthly income distribution
-│   ├── payment_frequency_by_outcome.png # Default rates across payment intervals (Weekly to Monthly)
-│   ├── requested_loan_amounts.png      # Distribution of requested loan financing amounts
-│   ├── roc_curves.png                  # Receiver Operating Characteristic curves (LR vs. RF)
-│   └── unmatched_loans.csv             # 628 loans lacking application records (preserved)
+│   ├── data_quality_summary.csv
+│   ├── feature_importance_summary.csv
+│   ├── logistic_regression_coefficients.csv
+│   ├── matching_investigation_summary.csv
+│   ├── matched_analysis_data.csv
+│   ├── unmatched_loans.csv
+│   ├── missing_values_report.csv
+│   ├── model_comparison_table.csv
+│   ├── findings_report.md
+│   └── *.png                                # Generated charts and model-evaluation visuals
+├── models/
+│   ├── rf_pipeline.joblib                  # Saved Random Forest pipeline
+│   └── test_predictions_snapshot.csv       # Test-set prediction snapshot, if generated
 ├── presentation/
-│   ├── TapLend_Credit_Risk_Analysis.pptx # 12-slide executive presentation with actual figures & notes
-│   └── speaker_notes_guide.md          # Comprehensive speaker script, timing, and interview Q&A
-├── build_and_execute_notebook.py       # Standalone script to regenerate and execute notebook
-├── build_presentation.py               # Standalone script to regenerate presentation and notes
-├── outputs_generator.py                # Standalone script to regenerate all analytical outputs
-├── README.md                           # Master project documentation and replication guide
-└── requirements.txt                    # Pinned Python package dependencies
+│   ├── TapLend_Credit_Risk_Analysis.pptx
+│   └── speaker_notes_guide.md
+├── save_model.py                           # Saves the fitted model pipeline
+├── predict_applicant.py                    # Command-line example prediction
+├── test_predictions.py                     # Regression/sanity checks for predictions and features
+├── outputs_generator.py                    # Regenerates analytical outputs, if included
+├── build_and_execute_notebook.py            # Notebook build/execution helper, if included
+├── build_presentation.py                    # Presentation-generation helper, if included
+├── requirements.txt
+└── README.md
 ```
 
----
+Some generated files may not exist until the notebook or supporting
+scripts have been run. The `*.py` helper scripts shown above should be
+retained in the repository only if they are present in your local
+project folder.
 
-## Required Python Packages
-The project is built on Python 3.13 and uses standard scientific libraries:
-* `pandas >= 2.2.0`
-* `numpy >= 2.0.0`
-* `matplotlib >= 3.9.0`
-* `seaborn >= 0.13.0`
-* `scipy >= 1.14.0`
-* `scikit-learn >= 1.5.0`
-* `openpyxl >= 3.1.5`
-* `nbformat >= 5.10.0`
-* `nbclient >= 0.10.0`
-* `ipykernel >= 6.29.0`
-* `python-pptx >= 1.0.2`
+## Dataset overview
 
-All dependencies are recorded in `requirements.txt`.
+The source workbook is `data/AssessmentDataScientist.xlsx` and contains
+three sheets:
 
----
+-   **Assignment:** The task brief.
+-   **Application Data:** 647 rows and 31 columns of approved
+    applications, dated October 16, 2010 to April 17, 2011, according to
+    the project audit.
+-   **Loan Performance:** 1,285 loan records with the binary outcome
+    `flgGood` (`Good` or `Bad`). The full sheet contains 769 Good and
+    516 Bad outcomes.
 
-## Setup & Execution Instructions
+The application sheet contains applicant and requested-loan
+characteristics, credit-bureau scores, and some post-decision fields.
+The analysis excludes post-decision fields from predictive features.
 
-### 1. Activate Virtual Environment
-On Windows (PowerShell):
-```powershell
-.\.venv\Scripts\Activate.ps1
+### Matching audit
+
+The reported matching investigation found:
+
+-   **657 matched loan records** across **641 distinct applicants**.
+-   **628 loan-performance records** without a corresponding application
+    record in the available application sheet.
+-   One application identifier was reported to have lost a leading zero
+    during spreadsheet handling; the correction was applied only because
+    it produced a supported identifier match.
+-   The unmatched records were preserved for audit rather than assigned
+    fabricated keys or matched by row position.
+
+The matched and unmatched groups have different observed outcome
+distributions. This difference is a warning that the available
+application records may not represent the complete loan portfolio. It
+does **not**, by itself, prove the precise mechanism that caused records
+to be missing.
+
+## Methodology
+
+1.  **Data quality and matching:** inspect schema, missing values,
+    identifier formats, duplicates, and join coverage.
+2.  **Exploratory analysis:** examine outcome distributions,
+    applicant/loan characteristics, credit-bureau scores, and repayment
+    frequency.
+3.  **Feature engineering:** create ratios such as payment-to-income and
+    rent-to-income, alongside a composite bureau-score feature where
+    appropriate.
+4.  **Leakage and privacy controls:** exclude post-decision variables
+    and identifiers or direct personal information from model features.
+    Age was excluded from the predictive feature set in this project;
+    this alone does not establish that the model is fair.
+5.  **Preprocessing:** use a scikit-learn pipeline for numerical
+    imputation/scaling and categorical imputation/encoding.
+6.  **Validation:** use customer-group-aware splitting to reduce the
+    risk of repeat records from one customer appearing across train and
+    test partitions.
+7.  **Model comparison:** evaluate Logistic Regression and Random Forest
+    using held-out metrics.
+8.  **Threshold discussion:** illustrate the effect of changing the
+    classification threshold under explicitly assumed costs. These
+    assumptions are illustrative, not supplied business costs from the
+    workbook.
+
+## Reported model results
+
+The final test snapshot and test script reported the following Random
+Forest results on a holdout set of **133 records**:
+
+  Metric                 Random Forest
+  -------------------- ---------------
+  Accuracy                      62.41%
+  ROC-AUC                       0.6313
+  Precision --- Bad             62.65%
+  Recall --- Bad                73.24%
+  F1-score --- Bad              67.53%
+  Precision --- Good            62.00%
+  Recall --- Good               50.00%
+  F1-score --- Good             55.36%
+
+The corresponding reported confusion-matrix counts, with `Bad` treated
+as the positive class, were **TN = 31, FP = 31, FN = 19, TP = 52**.
+Metrics are specific to this split and should not be interpreted as
+evidence of production performance.
+
+The Logistic Regression comparison reported in the project documentation
+was 53.38% accuracy and 0.5461 ROC-AUC. Refer to
+`outputs/model_comparison_table.csv` and the executed notebook for the
+authoritative comparison.
+
+### Decision-threshold analysis
+
+The project includes an illustrative cost analysis using an assumed cost
+of **\$500 per false negative** and **\$150 per false positive**. These
+are hypothetical values, not verified TapLend economics.
+
+At the 0.50 threshold, the reported test counts of FN = 19 and FP = 31
+imply an illustrative loss of:
+
+`(19 × $500) + (31 × $150) = $14,150`
+
+A lower threshold may catch more bad outcomes but can also classify many
+genuinely good borrowers as bad. Before publishing or presenting a
+specific alternative-threshold loss, verify its FN/FP counts against the
+final generated threshold analysis and ensure all documents use the same
+figures. Threshold choice should be based on validation data and
+business constraints---not tuned to optimize the final test set.
+
+## Saved model and prediction example
+
+The saved pipeline is expected at `models/rf_pipeline.joblib`.
+
+From the project root in Windows PowerShell, run the example using the
+project's virtual environment:
+
+``` powershell
+.\.venv\Scripts\python.exe predict_applicant.py --example
 ```
-On macOS/Linux:
-```bash
-source .venv/bin/activate
+
+The previously tested hypothetical example returned:
+
+-   Predicted class: **Bad (High Default Risk)**
+-   Estimated probability of Good / repaid: **46.4%**
+-   Estimated probability of Bad / default: **53.6%**
+
+This is a demonstration using a hypothetical profile, not an actual
+applicant decision. Model probabilities are estimates and are not
+guarantees.
+
+## Run the prediction checks
+
+``` powershell
+.\.venv\Scripts\python.exe test_predictions.py
 ```
 
-If initializing a fresh environment:
-```bash
+The latest reported run passed **5 out of 5 test suites**, covering
+metric consistency, prediction snapshots, engineered features, input
+validation, and probability/class checks. Re-run the test script after
+changing the model, features, or prediction code.
+
+## Setup
+
+Use Python compatible with the pinned packages in `requirements.txt`.
+The original project environment was reported as Python 3.13; if
+installation fails because a package does not support your Python
+version, use a compatible Python version and recreate the virtual
+environment.
+
+### Windows PowerShell
+
+``` powershell
+# Create the virtual environment if it does not already exist
 python -m venv .venv
+
+# Install dependencies
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+
+# Open the notebook
+.\.venv\Scripts\python.exe -m jupyter lab notebooks/taplend_analysis.ipynb
+
+# Run the prediction example and tests
+.\.venv\Scripts\python.exe predict_applicant.py --example
+.\.venv\Scripts\python.exe test_predictions.py
 ```
 
-### 2. Run the Master Jupyter Notebook
-To open and execute the analysis interactively:
-```powershell
+### macOS / Linux
+
+``` bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 jupyter lab notebooks/taplend_analysis.ipynb
-# Or via Jupyter Notebook:
-jupyter notebook notebooks/taplend_analysis.ipynb
-```
-The notebook uses dynamic relative path discovery based on the project root and executes cleanly from top to bottom.
-
-### 3. Regenerate All Outputs & Visuals via CLI
-You can also run the full end-to-end analytical pipeline via script:
-```powershell
-python outputs_generator.py
+python predict_applicant.py --example
+python test_predictions.py
 ```
 
-### 4. Regenerate PowerPoint Presentation
-```powershell
-python build_presentation.py
+If the optional generation scripts are present, the project may also
+support regenerating outputs or the presentation through:
+
+``` powershell
+.\.venv\Scripts\python.exe outputs_generator.py
+.\.venv\Scripts\python.exe build_presentation.py
 ```
 
----
+Run only scripts that actually exist in your local project folder.
 
-## Main Analysis Steps
+## Key limitations and responsible use
 
-### Phase 1: Audit & Hygiene Verification
-* Inspected all initial notebook cells and preserved initial EDA charts.
-* Replaced machine-specific absolute paths (`C:/Users/...`) with robust relative paths.
-* Fixed formatting inconsistencies (e.g. print statement typos `/n` $\to$ `\n`).
+-   **Historical sample:** the data covers a limited historical period
+    and may not represent current borrowers or economic conditions.
+-   **Selection bias:** the application dataset reportedly contains
+    approved applications only. Repayment outcomes for rejected
+    applicants are unavailable, so this dataset cannot establish how the
+    model would perform on them.
+-   **Incomplete application records:** 628 loan-performance records
+    have no matching application record in the available sheet. This
+    limits representativeness and may bias analysis.
+-   **Small holdout set:** 133 test records produce uncertain estimates;
+    subgroup results are particularly sensitive to small sample sizes.
+-   **Missing affordability information:** the workbook does not provide
+    all verified debt obligations needed for a robust affordability or
+    debt-to-income assessment.
+-   **Fairness:** removing age does not guarantee fairness. Correlated
+    features may act as proxies; formal subgroup and disparate-impact
+    audits would be required.
+-   **Threshold costs:** the financial costs used for threshold
+    illustrations are assumptions and must be replaced with validated
+    business estimates before operational use.
+-   **No production readiness:** this is an assessment prototype. It
+    must not be used for autonomous lending decisions without data
+    remediation, independent validation, fairness/legal review,
+    monitoring, and appropriate human oversight.
 
-### Phase 2: The Data Matching Investigation
-* **Key Architecture**: `customer_id` is a 10-character hexadecimal string. `idLoan` combines the hex prefix with a sequence suffix (e.g. `9ECE67D6C5-01`).
-* **Repeat Borrowers**: 16 customers took repeat loans (`-02`). All 16 customers repaid their first loan (`-01` Good). In their second loan, 13 were Good and 3 were Bad (default rate: **18.75%** vs. **54.84%** for first-time loans).
-* **Justified Identifier Correction (Row 567)**:
-  * Row 567 in Application Data had `customer_id = 902431691` (9 digits). Excel stripped the leading zero; restoring it matches loan `0902431691-01`.
-  * Total matched loans: **657 across 641 distinct applicants**.
-* **The 628 Unmatched Loan Records**:
-  * An exhaustive set-difference audit confirms that the 628 unmatched loan prefixes do not appear anywhere in `Application Data`.
-  * This is not an artifact of row order; `Application Data` simply covers only 647 out of the portfolio's 1,269 total borrowers in that 6-month period.
-  * **Distribution Discrepancy**: Matched cohort default rate is **54.03% Bad** ($N = 657$), whereas the unmatched cohort default rate is **25.64% Bad** ($N = 628$).
-  * **Governance Decision**: Under strict data governance rules, artificial join keys were not invented. The 628 loans were preserved in `outputs/unmatched_loans.csv` and flagged as an upstream data extraction omission.
+## Deliverables
 
-### Phase 3: Exploratory Data Analysis & Risk Drivers
-* **Payment Frequency**: Borrowers on **Weekly repayment schedules** experienced an **81.48% default rate** ($n=27$). Bi-weekly schedules had a **63.11% default rate** ($n=328$). Semi-monthly (41.23%) and monthly (43.86%) borrowers performed substantially better.
-  * *Methodological Note*: This is an observational association in a small subgroup ($n=27$), not established causation. Weekly terms do not inherently cause default; borrowers opting for weekly terms likely possess volatile cash flows.
-* **Credit Bureau Scores**: FICO Retail, Telecom, Bank Card, and Money scores demonstrated statistically significant separation ($p < 0.001$).
-* **Stated Income vs. Default**: Self-reported monthly income showed no linear correlation with default risk ($p = 0.729$).
+-   `notebooks/taplend_analysis.ipynb` --- main analysis and modelling
+    workflow.
+-   `outputs/findings_report.md` --- written findings and limitations.
+-   `presentation/TapLend_Credit_Risk_Analysis.pptx` --- executive
+    presentation.
+-   `presentation/speaker_notes_guide.md` --- speaker script and
+    interview preparation.
+-   `models/rf_pipeline.joblib` --- saved model pipeline, if generated.
+-   `predict_applicant.py` and `test_predictions.py` --- prediction demo
+    and validation checks.
+-   `outputs/` --- generated tables, charts, and audit files.
 
-### Phase 4: Feature Engineering & Fair Lending Hygiene
-* **Removal of Age**: Applicant age was calculated for EDA, but **deliberately removed from predictive model features** to comply with fair lending statutes (ECOA).
-* **Proxy Risk Review**: Removing age alone does not guarantee fairness. Correlated traits (residential duration, banking tenure, credit bureau history depth) can act as proxy variables. Formal disparate impact auditing is essential prior to production use.
-* **Leakage Exclusions**: Dropped post-decision underwriting fields (`amount_approved`, `duration_approved`, `payment_amount_approved`, `status`).
-* **Privacy Exclusions**: Excluded PII (`customer_id`, `idLoan`, `email`, `bank_routing_number`, `address_zip`).
-* **Engineered Ratios**: Payment-to-income, rent-to-income, total repayment cost ratio, and composite mean FICO score.
+## Data and repository hygiene
 
-### Phase 5 & 6: Modeling & Evaluation
-* **Customer Leakage Prevention**: Partitioned data using **`GroupShuffleSplit` on `customer_key`** (80% train / 20% test) to prevent repeat customer records from leaking across folds.
-* **Pipelines**: Applied Scikit-Learn `ColumnTransformer` with train-only median imputation + standard scaling for numerical features, and mode imputation + one-hot encoding for categoricals.
-* **Holdout Test Set Results ($N = 133$ loans across 128 customer groups, excluding age)**:
-  * **Random Forest**: **62.41% Accuracy**, **0.6313 ROC-AUC**, **73.24% Bad Recall** (52/71 defaults caught), **62.65% Bad Precision**, **67.53% Bad F1-Score**.
-  * **Logistic Regression**: **53.38% Accuracy**, **0.5461 ROC-AUC**, **59.15% Bad Recall**, **56.00% Bad Precision**, **57.53% Bad F1-Score**.
+Before making the repository public:
 
-### Phase 7: Leak-Free Decision Thresholds & Illustrative Trade-Offs
-* **Illustrative Cost Accounting**:
-  * Assumed Cost of False Negative (Default loss): $\approx \$500$ in lost principal (illustrative assumption).
-  * Assumed Cost of False Positive (Rejection of good borrower): $\approx \$150$ in lost profit margin (illustrative assumption).
-  * *Note*: These figures are illustrative operational assumptions not present in the assignment workbook.
-* **Leak-Free Threshold Tuning**:
-  * Threshold $T^* = 0.30$ was selected strictly on training cross-validation (GroupKFold).
-  * Evaluated on the untouched holdout test set ($N=133$):
-    * Test loss at standard 0.50 cutoff: \$14,150 ($FN=19, FP=31$).
-    * Test loss at selected 0.30 cutoff: \$9,650 ($FN=2, FP=59$).
-  * *The Volume vs. Risk Trade-Off*: While lowering $T$ to 0.30 catches nearly all defaults ($FN$ drops from 19 to 2), it rejects 59 out of 62 good borrowers ($FP$ increases from 31 to 59). Approval volume collapses! In real business operations, volume constraints must be enforced.
-  * *Sample Size Limitation*: With only 133 test cases, threshold tuning is sensitive to small sample noise.
+-   Do not commit `.venv/`, cache folders, secrets, or machine-specific
+    paths.
+-   Check whether the source workbook or generated CSVs contain names,
+    contact details, bank information, customer identifiers, or other
+    sensitive records. Do not publish raw or row-level sensitive data
+    without explicit authorization.
+-   If the assignment permits public sharing of results only, publish
+    the code, methodology, and appropriately aggregated outputs instead
+    of the original workbook or sensitive row-level files.
+-   Keep the report, presentation, README, and speaker guide aligned
+    with the final executed notebook and generated outputs.
 
----
+## Disclaimer
 
-## Important Limitations & Governance Realities
-1. **Selection Bias (Survivor Bias)**: The application dataset contains *exclusively approved applications* (`status == 'Approved'` for 100%). We cannot observe repayment behavior for applicants who were denied.
-2. **Missing 49% of Portfolio Application Records**: 628 loans lack application profiles. Their substantially lower default rate (25.6% vs. 54.0%) proves the missingness is non-random (MNAR).
-3. **Small Sample Size ($N = 657$)**: Constrains statistical power and makes subgroup analyses ($n=27$ for weekly loans, $n=16$ for repeat loans) sensitive to sample noise.
-4. **Omitted Debt Obligations**: The dataset lacks verified Debt-to-Income (DTI) and active debt tradelines.
-5. **Fair Lending & Regulatory Boundaries**: Proxy risk persists even after removing age; formal disparate impact audits are required.
-6. **No Production Deployment Claim**: The models developed here demonstrate empirical signal and underwriting principles; they are **not** ready for autonomous production deployment without resolving the missing 628 application records and conducting fair lending bias audits.
-
----
-
-## Deliverables Summary
-* **Master Notebook**: [taplend_analysis.ipynb](file:///c:/Users/adity/Downloads/TapLend_Data_Science_Assignment/notebooks/taplend_analysis.ipynb)
-* **Executive Report**: [findings_report.md](file:///c:/Users/adity/Downloads/TapLend_Data_Science_Assignment/outputs/findings_report.md)
-* **Presentation**: [TapLend_Credit_Risk_Analysis.pptx](file:///c:/Users/adity/Downloads/TapLend_Data_Science_Assignment/presentation/TapLend_Credit_Risk_Analysis.pptx)
-* **Speaker Guide**: [speaker_notes_guide.md](file:///c:/Users/adity/Downloads/TapLend_Data_Science_Assignment/presentation/speaker_notes_guide.md)
-* **Cleaned Matched Dataset**: [matched_analysis_data.csv](file:///c:/Users/adity/Downloads/TapLend_Data_Science_Assignment/outputs/matched_analysis_data.csv)
-* **Preserved Unmatched Loans**: [unmatched_loans.csv](file:///c:/Users/adity/Downloads/TapLend_Data_Science_Assignment/outputs/unmatched_loans.csv)
+This repository was prepared for educational and assessment purposes. It
+is not financial advice, a credit decision service, or a claim that the
+model is suitable for production underwriting.

@@ -1,0 +1,46 @@
+{
+  "numeric_features": [
+    "amount_requested",
+    "loan_duration",
+    "payment_amount",
+    "monthly_income_amount",
+    "monthly_rent_amount",
+    "num_payments",
+    "raw_FICO_telecom",
+    "raw_FICO_retail",
+    "raw_FICO_bank_card",
+    "raw_FICO_money",
+    "raw_l2c_score",
+    "payment_to_income",
+    "rent_to_income",
+    "total_repayment_ratio",
+    "mean_fico"
+  ],
+  "categorical_features": [
+    "payment_frequency",
+    "residence_rent_or_own",
+    "bank_account_direct_deposit",
+    "email_duration",
+    "residence_duration",
+    "bank_account_duration",
+    "home_phone_type"
+  ],
+  "classes": [
+    0,
+    1
+  ],
+  "good_class_index": 0,
+  "bad_class_index": 1,
+  "n_train": 524,
+  "n_test": 133,
+  "metrics": {
+    "accuracy": 0.6241,
+    "roc_auc": 0.6313,
+    "precision_bad": 0.6265,
+    "recall_bad": 0.7324,
+    "f1_bad": 0.6753,
+    "precision_good": 0.62,
+    "recall_good": 0.5,
+    "f1_good": 0.5536
+  }
+}
