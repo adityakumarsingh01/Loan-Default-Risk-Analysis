@@ -1,0 +1,14 @@
+Metric,Value
+Total Application Records,647
+Unique Application Customer IDs,647
+Total Loan Performance Records,1285
+Unique Loan Customer Prefixes,1269
+Matched Loan Records,657
+Matched Unique Customers,641
+Unmatched Loan Records,628
+Unmatched Unique Loan Prefixes,628
+Unmatched Application Records,6
+Repeat Borrower Loans (-02),16
+Total Portfolio Default Rate,40.16% (516/1285)
+Matched Cohort Default Rate,54.03% (355/657)
+Unmatched Cohort Default Rate,25.64% (161/628)

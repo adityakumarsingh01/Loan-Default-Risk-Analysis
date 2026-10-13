@@ -1,0 +1,9 @@
+Check,Result
+Duplicate Application Rows,0
+Duplicate Loan Performance Rows,0
+Duplicate Customer IDs in Application Data,0
+Constant Features (Zero Variance),"status ('Approved' 100%), payment_ach (True 99.8%)"
+High Cardinality / PII Columns,"customer_id, email, bank_routing_number, address_zip"
+Post-Decision Features (Leakage Risk),"amount_approved, duration_approved, payment_amount_approved"
+Fair Lending / Protected Demographics,birth_date (age removed from predictive models due to ECOA fair lending risks)
+Proxy Risk Review,"residential duration, bank tenure, and credit history length may correlate with age; full disparate impact audit required"

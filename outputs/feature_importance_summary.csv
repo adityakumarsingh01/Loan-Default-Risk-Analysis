@@ -1,0 +1,31 @@
+Feature,Importance
+mean_fico,0.10314728598296609
+raw_FICO_retail,0.08952558404350645
+payment_amount,0.07598174034717313
+raw_FICO_bank_card,0.0731027848001544
+payment_to_income,0.07007288321585274
+raw_FICO_money,0.06841326238633523
+raw_FICO_telecom,0.06816194739700074
+raw_l2c_score,0.0502374721220624
+rent_to_income,0.048685056589627344
+total_repayment_ratio,0.04835497218382937
+monthly_rent_amount,0.04604998637036498
+monthly_income_amount,0.04286605330534737
+num_payments,0.042414255393506836
+payment_frequency_Semi-monthly,0.032824813824411575
+amount_requested,0.021840747806025646
+payment_frequency_Monthly,0.016136793862147232
+bank_account_duration_6 months or less,0.01504274674032474
+loan_duration,0.014289578572372823
+bank_account_direct_deposit_True,0.013383833020021153
+residence_duration_6 months or less,0.010344743927752236
+residence_rent_or_own_True,0.010170451246158854
+payment_frequency_Weekly,0.00924930979008256
+residence_duration_7-12 months,0.008666619973964442
+bank_account_duration_3+ years,0.006949463925724717
+home_phone_type_Mobile,0.005074645739066868
+residence_duration_3+ years,0.005014583126621423
+bank_account_duration_7-12 months,0.0017476857484856577
+email_duration_4-12 months,0.0009986843620293517
+email_duration_3 months or less,0.0009928649065786906
+home_phone_type_Work,0.0002591492905047631
