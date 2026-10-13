@@ -1,4 +1,4 @@
-# TapLend India — Data Science Assessment: Credit Risk Analysis
+# TapLend India - Data Science Assessment: Credit Risk Analysis
 
 ## Project Objective
 This project analyzes historical consumer loan applications and subsequent loan performance records from TapLend. The primary analytical objective is to investigate whether applicant characteristics and credit bureau scores captured at application time can reliably predict loan repayment outcomes (`Good` vs. `Bad`), evaluate data quality and cohort matching anomalies, establish a leak-free machine learning workflow with fair-lending hygiene, and provide actionable, evidence-based underwriting recommendations.

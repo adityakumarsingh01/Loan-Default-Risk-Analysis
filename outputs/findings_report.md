@@ -66,12 +66,12 @@ This report presents a rigorous, leak-free credit risk analysis of historical lo
 | :--- | :---: | :---: |
 | **Accuracy** | **53.38%** | **62.41%** |
 | **ROC-AUC** | **0.5461** | **0.6313** |
-| **Precision (Bad Default)** | **56.00%** | **63.41%** |
+| **Precision (Bad Default)** | **56.00%** | **62.65%** |
 | **Recall (Bad Default)** | **59.15%** (42/71) | **73.24%** (52/71) |
-| **F1-Score (Bad Default)** | **57.53%** | **67.97%** |
-| **Precision (Good Repaid)** | **50.00%** | **60.78%** |
+| **F1-Score (Bad Default)** | **57.53%** | **67.53%** |
+| **Precision (Good Repaid)** | **50.00%** | **62.00%** |
 | **Recall (Good Repaid)** | **46.77%** (29/62) | **50.00%** (31/62) |
-| **F1-Score (Good Repaid)** | **48.33%** | **54.87%** |
+| **F1-Score (Good Repaid)** | **48.33%** | **55.36%** |
 
 Random Forest captured non-linear interactions substantially better than linear Logistic Regression, achieving **73.2% recall on defaults** and an ROC-AUC of **0.631**.
 

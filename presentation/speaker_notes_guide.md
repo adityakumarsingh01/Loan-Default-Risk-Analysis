@@ -1,4 +1,4 @@
-# TapLend India — Presentation Guide & Complete Speaker Notes
+# TapLend India - Presentation Guide & Complete Speaker Notes
 ## Credit Risk Assessment & Underwriting Optimization (Corrected & Leak-Free)
 
 This guide accompanies the 12-slide PowerPoint presentation `presentation/TapLend_Credit_Risk_Analysis.pptx`. It provides slide-by-slide talking points, timing guidance, expected interview questions, and model answers incorporating all technical corrections.
@@ -111,10 +111,10 @@ This guide accompanies the 12-slide PowerPoint presentation `presentation/TapLen
 
 ### Slide 10: Leak-Free Decision Thresholds & Illustrative Trade-Offs
 * **Time**: 2 minutes
-* **Key Message**: Threshold selected strictly on training CV ($T^* = 0.30$) and evaluated on untouched test data ($N=133$).
+* **Key Message**: Threshold selected strictly on training CV using Random Forest ($T^* = 0.30$) and evaluated on untouched test data ($N=133$).
 * **Analysis & Caveats**:
-  * Test loss decreases from \$14,150 at $T=0.50$ to \$9,650 at $T=0.30$.
-  * *The Trade-Off*: Catching nearly all defaults (FN drops from 19 to 2) comes at the expense of rejecting 59 out of 62 good borrowers (FP increases from 31 to 59). Approval volume collapses!
+  * Test loss decreases from \$14,150 at $T=0.50$ to \$9,650 at $T=0.30$ (a \$4,500 or 31.8% reduction under illustrative assumptions).
+  * *The Trade-Off*: Catching nearly all defaults (FN drops from 19 to 1) comes at the expense of rejecting 61 out of 62 good borrowers (FP increases from 31 to 61). Approval volume collapses!
   * *Sample Size Limitation*: With only 133 test cases, threshold tuning is sensitive to small sample noise and requires commercial volume constraints.
 
 ---
